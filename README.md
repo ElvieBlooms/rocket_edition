@@ -11,11 +11,13 @@ Where Crystal packages a single player character (and multiple outfit choices an
 | Character | Status |
 |---|---|
 | Jessie | Available |
-| James | Sprites in progress |
-| Jessie/James/Meowth Trio | Sprites in progress |
-| Rocket Grunt (Male) | Sprites in progress |
-| Rocket Grunt (Female) | Sprites in progress |
-| Giovanni | Sprites in progress |
+| James | Custom sprites in progress |
+| Jessie/James/Meowth Trio | Custom sprites in progress |
+| Rocket Grunt (Male) | Custom sprites in progress |
+| Rocket Grunt (Female) | Custom sprites in progress |
+| Giovanni | Custom sprites in progress |
+
+- Placeholder Crystal Clear community sprites will be used as placeholders for the interim where applicable
 
 Each character is its own sprite folder under `assets/sprites/`, selected the same way Crystal's own sprite variants are — through the **BATTLE SPRITE** and **FRONT SPRITE** options in the mod's settings menu.
 
