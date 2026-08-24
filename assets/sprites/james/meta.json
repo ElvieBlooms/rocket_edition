@@ -1,0 +1,6 @@
+{
+  "label": "JAMES",
+  "nameChoices": ["JAMES", "JESSIE", "GIOVANNI", "KRIS"],
+  "genderMode": "boy",
+  "overworldColors": [[255, 255, 255], [239, 204, 175], [176, 55, 86], [0, 0, 0]]
+}
