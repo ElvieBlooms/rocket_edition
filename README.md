@@ -88,5 +88,9 @@ All of the above -- the five overworld files and the three meta.json keys -- app
 * Overworld sprite doesn't support DMG palettes yet (you can use the DMG palette -- the sprite will just be the only thing in full color)
 * Player name options still show Gold's defaults (for now)
 
+## Compatibility
+This pack is built as its own standalone player sprite mod, using the same framework as the Crystal base mod. Since both mods patch the same player sprites and define the same options, running this pack alongside Crystal will likely conflict. If you'd like to use both, copy the contents of this pack's `assets` folder into Crystal's own `assets` folder rather than installing them as two separate mods. A zip file of the assets will be available in releases for that purpose.
+
+
 ## Credits
 This pack's mod framework -- sprite folder discovery, options menu integration, overworld/color/naming/gender overrides -- is built on [dburton95/crystal](https://github.com/dburton95/crystal), used with permission. All Team Rocket character sprites, text, and roster additions are original to this pack.
