@@ -10,14 +10,14 @@
   "priority": 100,
   "dependencies": [],
   "optional_dependencies": [],
-  "conflicts": [],
+  "conflicts": [dburton/crystal],
   "incompatible": [],
   "experimental": false,
   "permissions": [
     "engine_internals",
     "network"
   ],
-  "description": "A simple sprite replacement for trainer Red to look like a member of Team Rocket for your playhrough",
+  "description": "A simple sprite replacement for your trainer to look like a member of Team Rocket for your playhrough",
   "github": "ElvieBlooms/rocket_edition",
   "games": ["gen1", "gold"]
 }
