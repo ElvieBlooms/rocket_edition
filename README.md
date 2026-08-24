@@ -1,4 +1,4 @@
-# Team Rocket Character Pack
+# Team Rocket Edition - Character Pack
 A player sprite character pack for gen1recomp++, built on the modding framework from [dburton95/crystal](https://github.com/dburton95/crystal), used with the original author's permission.
 
 Where Crystal packages a single player character (and multiple outfit choices and variations), this pack uses the same framework to bundle a full Team Rocket roster — Jessie, James, the Jessie/James/Meowth trio, both Rocket Grunts, and Giovanni — as selectable player sprites, each with its own name choices, text, and overworld palette.
