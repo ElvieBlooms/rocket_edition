@@ -78,6 +78,21 @@ function kris.init(mod)
   table.sort(battleChoices, byLabel)
   table.sort(frontChoices, byLabel)
 
+  -- Resolves the default front-facing sprite path without assuming any
+  -- particular folder name exists (previously hardcoded to "original",
+  -- which broke once that folder was renamed). Falls back to whichever
+  -- front variant sorts first if the selected option isn't available. -Elvie
+  -- --------------------------------------------------
+  local function defaultFrontPath()
+    local selected = mod.options:get("frontSprite")
+    local variant = frontSpriteVariants[selected] and frontSpriteVariants[selected]["dmg"]
+    if variant then return mod.assets:path(variant.path) end
+    local fallbackKey = frontChoices[1] and frontChoices[1].key
+    local fallbackVariant = fallbackKey and frontSpriteVariants[fallbackKey]
+      and frontSpriteVariants[fallbackKey]["dmg"]
+    return fallbackVariant and mod.assets:path(fallbackVariant.path) or nil
+  end
+
   -- Define mod options
   -- ----------------------------------
   mod.options:define({
@@ -252,7 +267,7 @@ function kris.init(mod)
   })
   
   mod.content.field:patch("playerPics", {
-    front = mod.assets:path(SPRITES_DIR .. "/original/front.png")
+    front = defaultFrontPath()
   })
 
 
@@ -333,10 +348,7 @@ function kris.init(mod)
 
   -- Title screen player
   -- ----------------------
-  local titleVariant = frontSpriteVariants[mod.options:get("frontSprite")]
-    and frontSpriteVariants[mod.options:get("frontSprite")]["dmg"]
-  local titlePlayer = titleVariant and mod.assets:path(titleVariant.path)
-    or mod.assets:path(SPRITES_DIR .. "/original/front.png")
+  local titlePlayer = defaultFrontPath()
   local krisEdition = mod.assets:path("assets/menus/krisEdition.png")
   mod.content.field:patch("boot", {
     title = {

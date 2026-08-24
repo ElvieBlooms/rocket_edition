@@ -1,8 +1,8 @@
 return function(mod)
-  local kris = require("mods.crystal.kris")
-  local girlMode = require("mods.crystal.girlMode")
-  local nbMode = require("mods.crystal.nbMode")
-  local credits = require("mods.crystal.credits")
+  local kris = require("mods.rocket_edition.kris")
+  local girlMode = require("mods.rocket_edition.girlMode")
+  local nbMode = require("mods.rocket_edition.nbMode")
+  local credits = require("mods.rocket_edition.credits")
 
   local cfg = kris.init(mod)
 
