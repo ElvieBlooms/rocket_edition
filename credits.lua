@@ -14,13 +14,14 @@ function credits.init(mod)
   new = function(game)
     local self = { isOpaque = true }
     local lines = {
-      "MOD CREATOR",
+      "CRYSTAL MOD CREATOR",
       "  Dgray66",
+      "",
+      "ROCKET PACK",
+      " Elvie",
       "",
       "SPRITE ARTISTS",
       " Elvie",
-      " Amanda Arale-Chan",
-      " DarioMelo",
       "",
       "GIRL MODE SCRIPT",
       " Amanda Arale-Chan",
@@ -28,7 +29,7 @@ function credits.init(mod)
       " Bhk",
       "",
       "KO-FI SUPPORTERS",
-      " Elvie",
+      " Dgray66",
     }
 
     function self:update(dt)
