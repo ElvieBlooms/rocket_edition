@@ -10,7 +10,7 @@
   "priority": 100,
   "dependencies": [],
   "optional_dependencies": [],
-  "conflicts": [dburton/crystal],
+  "conflicts": [dburton95/crystal],
   "incompatible": [],
   "experimental": false,
   "permissions": [
