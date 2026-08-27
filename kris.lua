@@ -2,6 +2,8 @@ local kris = {}
 
 function kris.init(mod)
 
+  local GameVersion = require("src.core.GameVersion")
+  local isGen2 = GameVersion.generation(GameVersion.get()) == 2
 
   local PaletteFX = require("src.render.PaletteFX")
   local Json = require("src.link.Json")
@@ -78,10 +80,10 @@ function kris.init(mod)
   table.sort(battleChoices, byLabel)
   table.sort(frontChoices, byLabel)
 
-  -- Resolves the default front-facing sprite path without assuming any
-  -- particular folder name exists (previously hardcoded to "original",
-  -- which broke once that folder was renamed). Falls back to whichever
-  -- front variant sorts first if the selected option isn't available. -Elvie
+  -- Resolves the default front sprite path without assuming a specific
+  -- folder exists (previously hardcoded to "original", which broke when
+  -- that folder was renamed). Falls back to the first available front
+  -- variant if the selected option isn't found. -Elvie
   -- --------------------------------------------------
   local function defaultFrontPath()
     local selected = mod.options:get("frontSprite")
@@ -109,7 +111,18 @@ function kris.init(mod)
        choices = {
          {"DMG COMPATIBLE", "dmg"},
          {"FULL COLOR", "fullColor"}},
-         default = "dmg"}
+         -- Gen 2's hardware natively supports color, so full color makes a
+         -- better default there; Gen 1's default stays DMG-style. -Elvie
+         default = isGen2 and "fullColor" or "dmg"},
+    -- Read once at mod init by starters.lua, which gates its entire body
+    -- on this -- like every option here, a change needs a restart to take
+    -- effect, so both choice labels say so plainly. -Elvie
+    {
+      key = "rocketStarters", type = "choice", label = "ROCKET STARTERS",
+      choices = {
+        {"OFF (RESTART)", false},
+        {"ON (RESTART)", true}},
+        default = true}
   })
 
   -- Assign player sprite based on mod options
@@ -177,10 +190,8 @@ function kris.init(mod)
   end
 
   -- Per-folder overworld, naming, and gender overrides
-  -- Name choices, gender mode, the recolor palette, and the overworld
-  -- sprites below all follow whichever folder is selected for FRONT
-  -- SPRITE, falling back to Crystal's defaults when a folder doesn't
-  -- define them. -Elvie
+  -- All follow whichever folder is selected for FRONT SPRITE, falling
+  -- back to defaults when a folder doesn't define them. -Elvie
   -- --------------------------------------------------
   local DEFAULT_NAME_CHOICES = {"JESSIE", "JAMES", "ROCKET", "GIOVANNI"}
   local DEFAULT_GENDER_MODE = "girl"
@@ -234,68 +245,83 @@ function kris.init(mod)
       end
   end
 
-  -- Same rendering interception but for Gen 2
+  -- Same rendering interception but for Gen 2, gated on isGen2. This
+  -- manifest also loads on plain Gen 1, and the engine unconditionally
+  -- refuses to require any src.*.gen2.* module while a Gen 1 game is
+  -- active (Loader.lua's crossGenerationDenial) -- an earlier unconditional
+  -- version of this crashed mod load on Red/Blue. Patched once here rather
+  -- than in game.ready, since Palettes has no game-instance dependency and
+  -- game.ready can fire more than once a session (dev hot-reload). -Elvie
   -- -----------------------------------------
-  mod.events:on("game.ready", function(ev)
-    local palettes = require("src.world.gen2.Palettes")
-    local originalSpritePalette = palettes.spritePalette
-
-    palettes.spritePalette = function(data, daytime, spriteDef, objDef)
+  if isGen2 then
+    local Palettes = require("src.world.gen2.Palettes")
+    local originalSpritePalette = Palettes.spritePalette
+    Palettes.spritePalette = function(data, daytime, spriteDef, objDef)
       if spriteDef and spriteDef.paletteSource == "PLAYER_PALETTE" then
         return CRYSTAL_COLORS
       end
       return originalSpritePalette(data, daytime, spriteDef, objDef)
     end
-  end)
+  end
   
     
-  -- Sprite replacements
-  -- RED
-  -- image/path values now come from overworldAsset above instead of
-  -- fixed paths, so a folder can override them. -Elvie
+  -- Overworld sprite replacements
+  -- Gen 1's SPRITE_RED and Gen 2's SPRITE_CHRIS get identical treatment,
+  -- so this applies both together instead of duplicating the patch per
+  -- generation. Same for their bike variants. -Elvie
   -- --------------------------
-  mod.content.sprites:patch("SPRITE_RED", {
-    image = overworldWalk,
-    trueColor = false,
-    paletteSource = "PLAYER_PALETTE"
-  })
-  
-  mod.content.sprites:patch("SPRITE_RED_BIKE", {
-    image = overworldBike,
-    trueColor = false,
-    paletteSource = "PLAYER_PALETTE"
-  })
-  
-  mod.content.field:patch("playerPics", {
-    front = defaultFrontPath()
-  })
+  for _, spriteId in ipairs({ "SPRITE_RED", "SPRITE_CHRIS" }) do
+    mod.content.sprites:patch(spriteId, {
+      image = overworldWalk,
+      trueColor = false,
+      paletteSource = "PLAYER_PALETTE",
+    })
+  end
 
+  for _, spriteId in ipairs({ "SPRITE_RED_BIKE", "SPRITE_CHRIS_BIKE" }) do
+    mod.content.sprites:patch(spriteId, {
+      image = overworldBike,
+      trueColor = false,
+      paletteSource = "PLAYER_PALETTE",
+    })
+  end
 
-  mod.content.field:patch("overworldFx", {
-    redFishSide  = { path = overworldFishSide },
-    redFishFront = { path = overworldFishFront },
-    redFishBack  = { path = overworldFishBack },
-  })
+  -- Gen 1-only field registry patches. The field registry has no Gen 2
+  -- target -- Gen 2's naming and title-screen equivalents are handled
+  -- separately below via game.ready. Gating these explicitly makes that
+  -- boundary part of the code instead of a runtime warning to discover. -Elvie
+  -- --------------------------
+  if not isGen2 then
+    local frontPath = defaultFrontPath()
 
-  -- Sprite replacements
-  -- GOLD
-  -- Same overworldWalk/overworldBike source as RED above. -Elvie
-  -- -------------------------
-  mod.content.sprites:patch("SPRITE_CHRIS", {
-    image = overworldWalk,
-    trueColor = false,
-    paletteSource = "PLAYER_PALETTE",
-  }) 
+    mod.content.field:patch("playerPics", {
+      front = frontPath
+    })
 
-  mod.content.sprites:patch("SPRITE_CHRIS_BIKE", {
-    image = overworldBike,
-    trueColor = false,
-    paletteSource = "PLAYER_PALETTE",
-  })
+    mod.content.field:patch("overworldFx", {
+      redFishSide  = { path = overworldFishSide },
+      redFishFront = { path = overworldFishFront },
+      redFishBack  = { path = overworldFishBack },
+    })
+
+    mod.content.field:override("boot", {
+      namePresets = {
+        player = nameChoices
+      }
+    })
+
+    mod.content.field:patch("boot", {
+      title = {
+        player = frontPath,
+        versionRibbon = mod.assets:path("assets/menus/krisEdition.png"),
+      },
+    })
+  end
 
   -- Gen 2 Trainer Card
-  -- This can probably be simplified later when the field registry is available
-  -- for gen 2.
+  -- Registered under its own distinct screen id, so no Gen1/Gen2 gating
+  -- is needed here the way the field registry patches above need it --
+  -- nothing on Gen 1 would ever request "Gen2TrainerCard". -Elvie
   -- -----------------------------------------------
   mod.content.screens:register("Gen2TrainerCard", {
     new = function(game, opts)
@@ -319,19 +345,10 @@ function kris.init(mod)
     end,
   })
    
-  -- New game naming options
-  -- Pulled from nameChoices above instead of a fixed list. -Elvie
-  -- ---------------------------
-  mod.content.field:override("boot", {
-    namePresets = {
-      player = nameChoices
-    }
-  })
-  
-  -- Gen 2 Naming options and forcing true color of player sprite.
-  -- This can likely be reduced when the field registry is
-  -- hooked into gen 2 via the mod api.
-  -- Also pulled from nameChoices above instead of a fixed list. -Elvie
+  -- Gen 2 naming options, pulled from nameChoices above. The field
+  -- registry has no Gen 2 target (see above), so this writes directly to
+  -- game.data instead -- the same namePresets shape OakSpeech reads for
+  -- both generations, just reached a different way here. -Elvie
   -- --------------------------------------------------
   mod.events:on("game.ready", function(ev)
     local game = ev.game
@@ -346,16 +363,17 @@ function kris.init(mod)
     end
   end)
 
-  -- Title screen player
-  -- ----------------------
-  local titlePlayer = defaultFrontPath()
-  local krisEdition = mod.assets:path("assets/menus/krisEdition.png")
-  mod.content.field:patch("boot", {
-    title = {
-      player = titlePlayer,
-      versionRibbon = krisEdition,
-    },
-  })
+  -- Crystal shows a native gender-choice screen when its sprite cache
+  -- carries Kris data (Gold/Silver never do, so they never get the step).
+  -- Appearance here comes entirely from the selected sprite folder, so
+  -- this strips that step out -- a no-op on Gen 1 and Gold/Silver, where
+  -- it never existed. Skipping it defaults gender to "male" (Save.lua's
+  -- own fallback), which is what SPRITE_CHRIS above is patched for. -Elvie
+  -- --------------------------------------------------
+  mod.hooks:wrap("intro.oak_speech.build", function(next, steps, speech)
+    steps = next(steps, speech)
+    return mod.ui.removeStep(steps, "gender_select")
+  end)
 
   -- Hands the resolved config back to main.lua so it can choose
   -- girlMode, nbMode, or neither. -Elvie

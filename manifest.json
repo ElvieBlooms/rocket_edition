@@ -1,23 +1,24 @@
 {
   "id": "rocket_edition",
   "name": "Rocket Edition",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
-  "game_version": ">=0.1.89",
+  "game_version": ">=0.2.18",
   "category": "GRAPHICS",
   "priority": 100,
   "dependencies": [],
   "optional_dependencies": [],
-  "conflicts": [],
+  "conflicts": ["starter_picker"],
   "incompatible": [],
   "experimental": false,
+  "affects_link": true,
   "permissions": [
     "engine_internals",
     "network"
   ],
-  "description": "A simple sprite replacement for your trainer to look like a member of Team Rocket for your playhrough",
+  "description": "A Team Rocket sprite pack and starter-opening story for your trainer, spanning Red/Blue, Yellow, Gold, Silver, and Crystal.",
   "github": "ElvieBlooms/rocket_edition",
-  "games": ["gen1", "gold", "silver"]
+  "games": ["gen1", "gold", "silver", "crystal"]
 }

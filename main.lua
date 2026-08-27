@@ -3,6 +3,7 @@ return function(mod)
   local girlMode = require("mods.rocket_edition.girlMode")
   local nbMode = require("mods.rocket_edition.nbMode")
   local credits = require("mods.rocket_edition.credits")
+  local starters = require("mods.rocket_edition.starters")
 
   local cfg = kris.init(mod)
 
@@ -14,4 +15,5 @@ return function(mod)
   -- "boy": neither runs, vanilla male text stands untouched
 
   credits.init(mod)
+  starters.init(mod)
 end

@@ -1,7 +1,7 @@
 # Team Rocket Edition - Character Pack
-A player sprite character pack for gen1recomp++, built on the modding framework from [dburton95/crystal](https://github.com/dburton95/crystal), used with the original author's permission.
+A player sprite character pack and starter-opening story mod for gen1recomp++, built on the modding framework from [dburton95/crystal](https://github.com/dburton95/crystal), used with the original author's permission.
 
-Where Crystal packages a single player character (and multiple outfit choices and variations), this pack uses the same framework to bundle a full Team Rocket roster — Jessie, James, the Jessie/James/Meowth trio, both Rocket Grunts, and Giovanni — as selectable player sprites, each with its own name choices, text, and overworld palette.
+Where Crystal packages a single player character (and multiple outfit choices and variations), this pack uses the same framework to bundle a full Team Rocket roster — Jessie, James, the Jessie/James/Meowth trio, both Rocket Grunts, and Giovanni — as selectable player sprites, each with its own name choices, text, and overworld palette. On top of that, this pack changes the game's own opening so you actually start your journey as one of Team Rocket's own Pokémon, with a full story to match, across every generation the pack supports (Red/Blue, Yellow, Gold, Silver, and Crystal).
 
 <img width="823" height="740" alt="rocketEdition" src="https://github.com/user-attachments/assets/ea3eb97c-247a-49a8-8c3c-d19a07475b70" />
 <img width="1022" height="740" alt="rocketEdition2" src="https://github.com/user-attachments/assets/dbedb0ee-528c-4a22-91a1-53f63e6c5c5c" />
@@ -11,8 +11,8 @@ Where Crystal packages a single player character (and multiple outfit choices an
 | Character | Status |
 |---|---|
 | Jessie | Available |
-| James | Custom sprites in progress |
-| Jessie/James/Meowth Trio | Custom sprites in progress |
+| James | Available |
+| Jessie/James/Meowth Trio | Available |
 | Rocket Grunt (Male) | Custom sprites in progress |
 | Rocket Grunt (Female) | Custom sprites in progress |
 | Giovanni | Custom sprites in progress |
@@ -21,6 +21,18 @@ Where Crystal packages a single player character (and multiple outfit choices an
 
 Each character is its own sprite folder under `assets/sprites/`, selected the same way Crystal's own sprite variants are — through the **BATTLE SPRITE** and **FRONT SPRITE** options in the mod's settings menu.
 
+## Team Rocket Starters
+Instead of the usual three, your very first Pokémon comes from Team Rocket — with a story explaining why, unique to each generation this pack supports. This can be turned off from the mod's settings menu (**ROCKET STARTERS**, on by default) if you'd rather keep the vanilla starters and story while still using the sprite pack; changing it needs a restart to take effect.
+
+### Red/Blue: Koffing, Meowth, Ekans
+Oak stops you before you can leave Pallet Town — Team Rocket is watching him, and the three Pokémon in his lab aren't the usual ones. Choosing one still triggers the normal rival counter-pick and lab battle, just with Rocket's own line-up: Koffing's rival counter-pick is Meowth, Meowth's is Ekans, and Ekans' is Koffing, matching the same type-triangle positions the vanilla starters use.(The canonical Chamander/Squirtle/Bulbasaur trio ends up in your PC box, so nothing is lost if you'd rather raise one of them alongside your Rocket starter.) Your rival's Rocket-mon evolves and keeps pace with them the whole game (Koffing → Weezing at 35, Meowth → Persian at 28, Ekans → Arbok at 22). The parcel-fetching errand and Pokédex handoff are re-themed to match, ending on the same note the whole story is building toward — that whatever Team Rocket set in motion, the rest of the journey is yours to choose.
+
+### Yellow: Pikachu and Eevee, story only
+Yellow's own mechanics — catching Pikachu outside Pallet Town, the single Eevee ball, the rival shoving you aside to steal it — are left completely untouched. Only the dialogue changes: the Eevee was Team Rocket's gift, meant to test you, and your rival takes it before you ever get the chance. Oak gives you the Pikachu he caught instead, and the rest of the intro (the parcel errand, the Pokédex handoff) is re-themed around that same idea of an opening you didn't choose, and a journey you do.
+
+### Gold, Silver, and Crystal: Houndour, Spinarak, Snubbull
+An unaddressed package arrives at Elm's lab with three Pokémon inside and no explanation — Elm asks for your help figuring out what to do with them. Choosing one triggers the usual rival counter-pick (Houndour's counter-pick is Spinarak, Spinarak's is Snubbull, Snubbull's is Houndour), and your rival's Rocket-mon evolves right alongside them (Houndour → Houndoom at 24, Spinarak → Ariados at 22, Snubbull → Granbull at 23). (The canonical Chikorita/Cyndaquil/Totodile trio still ends up in your PC box, just like in Gen 1.) After you return the Mystery Egg and the story's larger threads tie off, a final anonymous phone call on Route 29 closes out the mystery — for now.
+
 ## Companion voice pack
 Each character in this pack, including the Jessie/James/Meowth trio, will have a matching voice pack in [Trainer Talk](https://github.com/ElvieBlooms/trainer_talk) coming in the near future -- an optional add-on for extra immersion, not required to use this pack.
 
@@ -28,6 +40,7 @@ Each character in this pack, including the Jessie/James/Meowth trio, will have a
 * Bike sprite
 * Fishing sprite
 * Battle sprites (front and back)
+* Team Rocket starter Pokémon and story, with its own on/off toggle in the settings menu -- see "Team Rocket Starters" above
 * Voxel Mod support -- mostly working.
   * The fishing sprite breaks with voxel. This looks like a pre-existing issue on the original sprite too, not something specific to this pack.
 * Per-character name options in Oak's dialogue -- each character can define its own new-game name choices instead of the game's defaults
@@ -90,9 +103,12 @@ All of the above -- the five overworld files and the three meta.json keys -- app
 * Overworld sprite doesn't support DMG palettes yet (you can use the DMG palette -- the sprite will just be the only thing in full color)
 * Player name options still show Gold's defaults (for now)
 
+## Crystal
+Crystal is also a supported game version, sprite pack and starter story alike. Crystal has its own native gender-choice screen (choosing between Chris and Kris) that Gold and Silver never had; since your appearance here already comes from your selected sprite folder, that screen is skipped automatically so it doesn't ask a second, separate question. Everything documented above for Gold applies to Crystal as well.
+
 ## Compatibility
 This pack is built as its own standalone player sprite mod, using the same framework as the Crystal base mod. Since both mods patch the same player sprites and define the same options, running this pack alongside Crystal will likely conflict. If you'd like to use both, copy the contents of this pack's `assets` folder into Crystal's own `assets` folder rather than installing them as two separate mods. A zip file of the assets will be available in releases for that purpose.
 
 
 ## Credits
-This pack's mod framework -- sprite folder discovery, options menu integration, overworld/color/naming/gender overrides -- is built on [dburton95/crystal](https://github.com/dburton95/crystal), used with permission. All Team Rocket character sprites, text, and roster additions are original to this pack.
+This pack's mod framework -- sprite folder discovery, options menu integration, overworld/color/naming/gender overrides -- is built on [dburton95/crystal](https://github.com/dburton95/crystal), used with permission. The Gen 2 starter-ball script handling follows patterns verified in `inmento`'s Starter Picker mod, used with permission. All Team Rocket character sprites, text, the starter Pokémon story, and roster additions are original to this pack.

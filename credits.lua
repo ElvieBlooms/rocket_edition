@@ -4,7 +4,7 @@ function credits.init(mod)
 
   mod.hooks:wrap("ui.start_menu.items", function(next, game, items)
     mod.ui.insertBefore(items, "QUIT", {
-      label = "T. KRIS",
+      label = "CREDITS",
       onSelect = function() mod.ui.push(game, "credits") end,
     })
     return next(game, items)
@@ -14,14 +14,11 @@ function credits.init(mod)
   new = function(game)
     local self = { isOpaque = true }
     local lines = {
-      "CRYSTAL MOD CREATOR",
-      "  Dgray66",
+      "CRYSTAL MOD BASE",
+      " Dgray66",
       "",
-      "ROCKET PACK",
-      " Elvie",
-      "",
-      "SPRITE ARTISTS",
-      " Elvie",
+      "STARTER SELECTOR",
+      " UwU",
       "",
       "GIRL MODE SCRIPT",
       " Amanda Arale-Chan",
