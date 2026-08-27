@@ -10,7 +10,7 @@
   "priority": 100,
   "dependencies": [],
   "optional_dependencies": [],
-  "conflicts": ["starter_picker, crystal"],
+  "conflicts": ["starter_picker"],
   "incompatible": [],
   "experimental": false,
   "affects_link": true,
