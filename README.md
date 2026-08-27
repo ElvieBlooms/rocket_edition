@@ -4,8 +4,8 @@ A player sprite character pack and starter-opening story mod for gen1recomp++, b
 Where Crystal packages a single player character (and multiple outfit choices and variations), this pack uses the same framework to bundle a full Team Rocket roster — Jessie, James, the Jessie/James/Meowth trio, both Rocket Grunts, and Giovanni — as selectable player sprites, each with its own name choices, text, and overworld palette. On top of that, this pack changes the game's own opening so you actually start your journey as one of Team Rocket's own Pokémon, with a full story to match, across every generation the pack supports (Red/Blue, Yellow, Gold, Silver, and Crystal).
 
 <img width="823" height="740" alt="rocketEdition" src="https://github.com/user-attachments/assets/ea3eb97c-247a-49a8-8c3c-d19a07475b70" />
-<img width="1022" height="740" alt="rocketEdition2" src="https://github.com/user-attachments/assets/dbedb0ee-528c-4a22-91a1-53f63e6c5c5c" />
-<img width="1023" height="739" alt="rocketEdition3" src="https://github.com/user-attachments/assets/0ff179ea-5310-40a0-868d-2cb863f3de20" />
+<img width="1022" height="739" alt="rocketEdition7" src="https://github.com/user-attachments/assets/6ac008bc-8c8b-4848-b224-7d6e5fcbe0d5" />
+<img width="1026" height="744" alt="Screenshot_20260827_170217" src="https://github.com/user-attachments/assets/0c430344-4a96-420e-9dbf-b812757bd238" />
 
 ## Characters
 | Character | Status |
