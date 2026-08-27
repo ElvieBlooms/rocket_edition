@@ -17,7 +17,7 @@ Where Crystal packages a single player character (and multiple outfit choices an
 | Rocket Grunt (Female) | Custom sprites in progress |
 | Giovanni | Custom sprites in progress |
 
-- Placeholder Crystal Clear community sprites will be used as placeholders for the interim where applicable
+- Crystal Clear community sprites will be used as placeholders for the interim where applicable (giovanni/ gruntF)
 
 Each character is its own sprite folder under `assets/sprites/`, selected the same way Crystal's own sprite variants are — through the **BATTLE SPRITE** and **FRONT SPRITE** options in the mod's settings menu.
 
