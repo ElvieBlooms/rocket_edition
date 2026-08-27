@@ -22,7 +22,10 @@ function girlMode.init(mod)
   -- addresses. Crystal's text layout doesn't match Gold/Silver's, so these
   -- were matched by content against Crystal's extracted text data, not
   -- copied from the Gold keys. Two lines (4c:5009, 57:4d49) had no
-  -- confirmed match and are left out rather than guessed. -Elvie
+  -- confirmed match and are left out rather than guessed. The three
+  -- Copycat lines below aren't from a Gold key at all -- Crystal-only
+  -- content, found via a systematic audit of every native gender check
+  -- in pret/pokecrystal's maps/ (see the Copycat comment below). -Elvie
   -- --------------------------------
     ["64:40b0"] = "Hiya, kid! I\nsee you're new in\011MAHOGANY TOWN.\012Since you're new,\nyou should try a\012yummy RAGECANDY-\nBAR!\012Right now, it can\nbe yours for just\011¥300! Want one?",
     ["69:57ba"] = "Let's see…\012…DARK CAVE leads\nto another road…\012That's good to\nknow.\012Thanks for bring-\ning this to me.\012My friend's a good\nguy, and you're \011swell too!\012I'd like to do\nsomething good in\011return too!\012I know! I want you\nto have this!",
@@ -62,6 +65,16 @@ function girlMode.init(mod)
     ["4b:5669"] = "IRENE: Ohhhh!\nToo strong!",    
     ["57:5164"] = "May I see your\nrail PASS, please?\012OK. Right this\nway, please.",   
     ["61:4cb3"] = "May I see your\nrail PASS, please?\012OK. Right this\nway, please.",    
+    -- Copycat mirrors the player's own way of talking, with fully separate
+    -- male/female dialogue (not a single swapped word) -- found via a
+    -- systematic audit of every ENGINE_PLAYER_IS_FEMALE check in
+    -- pret/pokecrystal's maps/, cross-checked against Crystal's own
+    -- extracted text. Since our gender bypass always resolves male, her
+    -- male lines are what always display; these replace them with her
+    -- real female lines. -Elvie
+    ["62:6fda"] = "{PLAYER}: Hi. You\nmust like POKéMON.\012{PLAYER}: No, not\nme. I asked you.\012{PLAYER}: Pardon?\nYou're weird!",
+    ["62:7064"] = "{PLAYER}: Hi. Did\nyou really lose\011your POKé DOLL?\012{PLAYER}: You'll\nreally give me a\012rail PASS if I\nfind it for you?\012{PLAYER}: Sure,\nI'll look for it!\012You think you lost\nit when you were\011in VERMILION?",
+    ["62:7298"] = "{PLAYER}: Thank you\nfor the rail PASS!\012{PLAYER}: …Pardon?\012{PLAYER}: Is it\nreally that fun to\012copy what I say\nand do?",
     ["56:5a70"] = "Excuse me, kid!\nCan you do a guy\011a favor?\012Can you take this\nPOKéMON with MAIL\011to my friend?\012He's on ROUTE 31.",    
     ["56:5adb"] = "You will? Perfect!\nThanks, kid!\012My pal's a chubby\nguy who snoozes\011all the time.\012You'll recognize\nhim right away!",    
     ["4a:5cd9"] = "Let's see…\012…DARK CAVE leads\nto another road…\012That's good to\nknow.\012Thanks for bring-\ning this to me.\012My friend's a good\nguy, and you're \011swell too!\012I'd like to do\nsomething good in\011return too!\012I know! I want you\nto have this!",    
