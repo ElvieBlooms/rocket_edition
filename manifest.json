@@ -6,11 +6,11 @@
   "entry": "main.lua",
   "profile": "content",
   "game_version": ">=0.2.18",
-  "category": "GRAPHICS",
+  "category": "GRAPHICS, GAMEPLAY",
   "priority": 100,
   "dependencies": [],
   "optional_dependencies": [],
-  "conflicts": ["starter_picker"],
+  "conflicts": ["starter_picker, crystal"],
   "incompatible": [],
   "experimental": false,
   "affects_link": true,
@@ -20,5 +20,5 @@
   ],
   "description": "A Team Rocket sprite pack and starter-opening story for your trainer, spanning Red/Blue, Yellow, Gold, Silver, and Crystal.",
   "github": "ElvieBlooms/rocket_edition",
-  "games": ["gen1", "gold", "silver", "crystal"]
+  "games": ["gen1", "gen2"]
 }
