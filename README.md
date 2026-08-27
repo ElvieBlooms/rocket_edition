@@ -1,5 +1,5 @@
 # Team Rocket Edition - Character Pack
-A player sprite character pack and starter-opening story mod for gen1recomp++, built on the modding framework from [dburton95/crystal](https://github.com/dburton95/crystal), used with the original author's permission.
+A player sprite character pack and starter-opening story mod for gen1recomp++, built on the modding framework from [dburton95/crystal](https://github.com/dburton95/crystal), and starter selection was built off of [inmento's Starter Picker](https://github.com/inmento/Starter-Picker), both used with the original author's permission.
 
 Where Crystal packages a single player character (and multiple outfit choices and variations), this pack uses the same framework to bundle a full Team Rocket roster — Jessie, James, the Jessie/James/Meowth trio, both Rocket Grunts, and Giovanni — as selectable player sprites, each with its own name choices, text, and overworld palette. On top of that, this pack changes the game's own opening so you actually start your journey as one of Team Rocket's own Pokémon, with a full story to match, across every generation the pack supports (Red/Blue, Yellow, Gold, Silver, and Crystal).
 
