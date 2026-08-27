@@ -91,24 +91,12 @@ All of the above -- the five overworld files and the three meta.json keys -- app
 }
 ```
 
-## What works in Gold
-* Full color overworld sprite
-* Full color bike sprite (untested but should work)
-* Credits
-* Battle sprite choices
-* Full color sprites in the battle engine
-* Per-character re-gendering of the text
-
-## What doesn't work in Gold
-* Overworld sprite doesn't support DMG palettes yet (you can use the DMG palette -- the sprite will just be the only thing in full color)
-* Player name options still show Gold's defaults (for now)
-
 ## Crystal
-Crystal is also a supported game version, sprite pack and starter story alike. Crystal has its own native gender-choice screen (choosing between Chris and Kris) that Gold and Silver never had; since your appearance here already comes from your selected sprite folder, that screen is skipped automatically so it doesn't ask a second, separate question. Everything documented above for Gold applies to Crystal as well.
+Crystal is a supported game version, sprite pack and starter story alike. Crystal has its own native gender-choice screen (choosing between Chris and Kris) that Gold and Silver never had; since your appearance here already comes from your selected sprite folder, that screen is skipped automatically so it doesn't ask a second, separate question. Because we skip it your save will be defaulted to male but the text overrides from girl and enby mode will be applied based on the sprite folder you utilize. 
 
 ## Compatibility
 This pack is built as its own standalone player sprite mod, using the same framework as the Crystal base mod. Since both mods patch the same player sprites and define the same options, running this pack alongside Crystal will likely conflict. If you'd like to use both, copy the contents of this pack's `assets` folder into Crystal's own `assets` folder rather than installing them as two separate mods. A zip file of the assets will be available in releases for that purpose.
 
 
 ## Credits
-This pack's mod framework -- sprite folder discovery, options menu integration, overworld/color/naming/gender overrides -- is built on [dburton95/crystal](https://github.com/dburton95/crystal), used with permission. The Gen 2 starter-ball script handling follows patterns verified in `inmento`'s Starter Picker mod, used with permission. All Team Rocket character sprites, text, the starter Pokémon story, and roster additions are original to this pack.
+This pack's mod framework -- sprite folder discovery, options menu integration, overworld/color/naming/gender overrides -- is built on [dburton95/crystal](https://github.com/dburton95/crystal), used with permission. The Gen 2 starter-ball script handling follows patterns verified in [inmento's Starter Picker](https://github.com/inmento/Starter-Picker) mod, used with permission. All Team Rocket character sprites, text, the starter Pokémon story, and roster additions are original to this pack.
