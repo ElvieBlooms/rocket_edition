@@ -19,7 +19,7 @@ Where Crystal packages a single player character (and multiple outfit choices an
 
 - Crystal Clear community sprites will be used as placeholders for the interim where applicable (giovanni/ gruntF)
 
-Each character is its own sprite folder under `assets/sprites/`, selected the same way Crystal's own sprite variants are — through the **BATTLE SPRITE** and **FRONT SPRITE** options in the mod's settings menu.
+Each character is its own sprite folder under `assets/sprites/`. Pick your **CHARACTER** first in the mod's settings menu, then, if that character has more than one look, pick between its own **FRONT SPRITE**/**BATTLE SPRITE** variants -- the same folder-based framework Crystal's own sprite variants use.
 
 ## Team Rocket Starters
 Instead of the usual three, your very first Pokémon comes from Team Rocket — with a story explaining why, unique to each generation this pack supports. This can be turned off from the mod's settings menu (**ROCKET STARTERS**, on by default) if you'd rather keep the vanilla starters and story while still using the sprite pack; changing it needs a restart to take effect.
@@ -58,14 +58,31 @@ Each character in this pack, including the Jessie/James/Meowth trio, will have a
     * `frontColor.png`
     * `meta.json`
     * As long as either `back.png` or `backColor.png` is present, the other is optional -- the mod falls back automatically if a sprite is missing. Same for `front.png`/`frontColor.png`.
-* `meta.json` needs at least a `label` key -- this is the name shown for that character in the options menu.
+* `meta.json` needs at least a `label` key -- this is the name shown for that folder in the options menu.
+* `meta.json` can also optionally set a `character` key, grouping several folders together as variants of one character (e.g. a default look and a separate battle-only look). Folders sharing the same `character` value show up under one **CHARACTER** entry, with their own `label`s as the sub-choice between them. A folder that doesn't set `character` is treated as its own standalone, single-variant character -- exactly how every folder already works today, so this is fully backward compatible with existing Crystal sprite packs.
 
 ### Example meta.json file
+A standalone character, with no other variants:
 ```json
 {
   "label": "JESSIE"
 }
 ```
+
+Two folders grouped as variants of the same character (e.g. `assets/sprites/original/` and `assets/sprites/jessieBattle/`):
+```json
+{
+  "label": "ORIGINAL",
+  "character": "JESSIE"
+}
+```
+```json
+{
+  "label": "JESSIE BATTLE",
+  "character": "JESSIE"
+}
+```
+Both show up under a single **JESSIE** entry in the **CHARACTER** option, with **ORIGINAL** and **JESSIE BATTLE** as the front/battle sprite choices underneath it.
 
 ### Overworld sprites, colors, names & gender
 A character's folder can also optionally include any of these files to replace its walking, bike, and fishing overworld sprites:
@@ -80,7 +97,7 @@ And its `meta.json` can optionally set any of these keys:
 * `nameChoices` -- array of strings shown as name choices at the start of a new game (Gen 1 and Gold).
 * `genderMode` -- one of `"boy"` (vanilla text), `"girl"` (re-gendered text), or `"enby"` (gender-neutral text).
 
-All of the above -- the five overworld files and the three meta.json keys -- apply only to whichever character is currently selected as **FRONT SPRITE** in the options menu (the same selection the title screen image uses), not to every character at once. Anything a character's folder doesn't supply falls back to the pack's defaults. Like the title screen sprite, all of this is resolved once when the mod loads, from whichever FRONT SPRITE is selected at that time -- changing FRONT SPRITE mid-session won't update it without a restart.
+All of the above -- the five overworld files and the three meta.json keys -- apply only to whichever folder is resolved as the front sprite for the currently selected **CHARACTER** (the same one the title screen image uses), not to every character at once. Anything a character's folder doesn't supply falls back to the pack's defaults. Like the title screen sprite, all of this is resolved once when the mod loads, from whichever CHARACTER (and, if it has more than one look, FRONT SPRITE variant) is selected at that time -- changing either mid-session won't update it without a restart.
 
 ```json
 {

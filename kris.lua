@@ -15,6 +15,7 @@ function kris.init(mod)
   local SPRITES_DIR = "assets/sprites"
 
   local function readMeta(key)
+    if not key then return {} end
     local metaPath = SPRITES_DIR .. "/" .. key .. "/meta.json"
     if mod.assets:info(metaPath) then
       local ok, decoded = pcall(Json.decode, mod:read(metaPath))
@@ -24,6 +25,7 @@ function kris.init(mod)
   end
 
   local function fileVariant(key, name, trueColor)
+    if not key then return nil end
     local rel = SPRITES_DIR .. "/" .. key .. "/" .. name
     if mod.assets:info(rel) then
       return { path = rel, trueColor = trueColor }
@@ -55,11 +57,29 @@ function kris.init(mod)
   local battleChoices = {}
   local frontChoices = {}
 
+  -- Groups folders by an optional "character" field in meta.json, so the
+  -- options menu can offer "pick a character, then pick that character's
+  -- own variants" instead of one flat, ungrouped list. A folder that
+  -- doesn't define "character" becomes its own single-variant character
+  -- group (falling back to its label, then its folder key) -- this is
+  -- exactly today's behavior, so every folder in the Crystal upstream
+  -- this framework comes from keeps working unchanged. -Elvie
+  -- --------------------------------------------------
+  local frontFoldersByCharacter = {}
+  local battleFoldersByCharacter = {}
+
+  local function addToCharacter(byCharacter, character, entry)
+    byCharacter[character] = byCharacter[character] or {}
+    table.insert(byCharacter[character], entry)
+  end
+
   for _, key in ipairs(mod.assets:list(SPRITES_DIR)) do
     local info = mod.assets:info(SPRITES_DIR .. "/" .. key)
     if info and info.type == "directory" then
       local meta = readMeta(key)
       local label = meta.label or key:upper()
+      local character = (type(meta.character) == "string" and meta.character ~= "")
+        and meta.character or label
 
       local back = fileVariant(key, "back.png", false)
       local backColor = fileVariant(key, "backColor.png", true)
@@ -68,17 +88,66 @@ function kris.init(mod)
 
       if back or backColor then
         battleSpriteVariants[key] = { dmg = back or backColor, fullColor = backColor or back }
-        table.insert(battleChoices, { label = label, key = key })
+        local entry = { label = label, key = key }
+        table.insert(battleChoices, entry)
+        addToCharacter(battleFoldersByCharacter, character, entry)
       end
       if front or frontColor then
         frontSpriteVariants[key] = { dmg = front or frontColor, fullColor = frontColor or front }
-        table.insert(frontChoices, { label = label, key = key })
+        local entry = { label = label, key = key }
+        table.insert(frontChoices, entry)
+        addToCharacter(frontFoldersByCharacter, character, entry)
       end
     end
   end
 
   table.sort(battleChoices, byLabel)
   table.sort(frontChoices, byLabel)
+  for _, byCharacter in ipairs({ frontFoldersByCharacter, battleFoldersByCharacter }) do
+    for _, entries in pairs(byCharacter) do
+      table.sort(entries, byLabel)
+    end
+  end
+
+  -- The character list itself: every character with a front and/or battle
+  -- folder, deduplicated. -Elvie
+  -- --------------------------------------------------
+  local characterSet = {}
+  for character in pairs(frontFoldersByCharacter) do characterSet[character] = true end
+  for character in pairs(battleFoldersByCharacter) do characterSet[character] = true end
+  local characterChoices = {}
+  for character in pairs(characterSet) do
+    table.insert(characterChoices, { label = character, key = character })
+  end
+  table.sort(characterChoices, byLabel)
+
+  local function sanitizeKey(s)
+    return (s:gsub("%W", "_"))
+  end
+
+  -- Resolves which folder to actually use for the given character and
+  -- asset type: the character's only folder if it has just one, or its
+  -- own sub-option's current value if it has several. -Elvie
+  -- --------------------------------------------------
+  local function resolveCharacterFolder(byCharacter, character, optionKeyPrefix)
+    local entries = byCharacter[character]
+    if not entries or #entries == 0 then return nil end
+    if #entries == 1 then return entries[1].key end
+    local optionKey = optionKeyPrefix .. sanitizeKey(character)
+    local selected = mod.options:get(optionKey)
+    for _, entry in ipairs(entries) do
+      if entry.key == selected then return selected end
+    end
+    return entries[1].key
+  end
+
+  local function resolveFrontKey(character)
+    return resolveCharacterFolder(frontFoldersByCharacter, character, "frontSpriteFor_")
+  end
+
+  local function resolveBattleKey(character)
+    return resolveCharacterFolder(battleFoldersByCharacter, character, "battleSpriteFor_")
+  end
 
   -- Resolves the default front sprite path without assuming a specific
   -- folder exists (previously hardcoded to "original", which broke when
@@ -86,8 +155,9 @@ function kris.init(mod)
   -- variant if the selected option isn't found. -Elvie
   -- --------------------------------------------------
   local function defaultFrontPath()
-    local selected = mod.options:get("frontSprite")
-    local variant = frontSpriteVariants[selected] and frontSpriteVariants[selected]["dmg"]
+    local character = mod.options:get("character")
+    local selected = resolveFrontKey(character)
+    local variant = selected and frontSpriteVariants[selected] and frontSpriteVariants[selected]["dmg"]
     if variant then return mod.assets:path(variant.path) end
     local fallbackKey = frontChoices[1] and frontChoices[1].key
     local fallbackVariant = fallbackKey and frontSpriteVariants[fallbackKey]
@@ -96,34 +166,63 @@ function kris.init(mod)
   end
 
   -- Define mod options
+  -- CHARACTER comes first; its own front/battle sprite choices are added
+  -- below, one pair per character, each hidden until that character is
+  -- selected. -Elvie
   -- ----------------------------------
-  mod.options:define({
+  local optionRows = {
     {
-      key = "battleSprite", type = "choice", label = "BATTLE SPRITE",
-      choices = toChoicePairs(battleChoices), default = defaultKey(battleChoices, "original")
+      key = "character", type = "choice", label = "CHARACTER",
+      choices = toChoicePairs(characterChoices), default = defaultKey(characterChoices, "JESSIE")
     },
-    {
-      key = "frontSprite", type = "choice", label = "FRONT SPRITE",
-      choices = toChoicePairs(frontChoices), default = defaultKey(frontChoices, "original")
-    },
-    {
-      key = "colorMode", type = "choice", label = "COLOR PALETTE",
-       choices = {
-         {"DMG COMPATIBLE", "dmg"},
-         {"FULL COLOR", "fullColor"}},
-         -- Gen 2's hardware natively supports color, so full color makes a
-         -- better default there; Gen 1's default stays DMG-style. -Elvie
-         default = isGen2 and "fullColor" or "dmg"},
-    -- Read once at mod init by starters.lua, which gates its entire body
-    -- on this -- like every option here, a change needs a restart to take
-    -- effect, so both choice labels say so plainly. -Elvie
-    {
-      key = "rocketStarters", type = "choice", label = "ROCKET STARTERS",
-      choices = {
-        {"OFF (RESTART)", false},
-        {"ON (RESTART)", true}},
-        default = true}
+  }
+
+  -- A character only gets a sprite sub-option if it actually has more than
+  -- one folder to choose between -- a single-folder character resolves
+  -- straight to it, so there's no pointless one-choice row in the menu. -Elvie
+  -- --------------------------------------------------
+  for _, character in ipairs(characterChoices) do
+    local key = character.key
+    local fronts = frontFoldersByCharacter[key]
+    local battles = battleFoldersByCharacter[key]
+    if fronts and #fronts > 1 then
+      table.insert(optionRows, {
+        key = "frontSpriteFor_" .. sanitizeKey(key), type = "choice", label = "FRONT SPRITE",
+        choices = toChoicePairs(fronts), default = defaultKey(fronts, "original"),
+        visible_if = { key = "character", equals = key },
+      })
+    end
+    if battles and #battles > 1 then
+      table.insert(optionRows, {
+        key = "battleSpriteFor_" .. sanitizeKey(key), type = "choice", label = "BATTLE SPRITE",
+        choices = toChoicePairs(battles), default = defaultKey(battles, "original"),
+        visible_if = { key = "character", equals = key },
+      })
+    end
+  end
+
+  table.insert(optionRows, {
+    key = "colorMode", type = "choice", label = "COLOR PALETTE",
+    choices = {
+      {"DMG COMPATIBLE", "dmg"},
+      {"FULL COLOR", "fullColor"}},
+      -- Gen 2's hardware natively supports color, so full color makes a
+      -- better default there; Gen 1's default stays DMG-style. -Elvie
+      default = isGen2 and "fullColor" or "dmg"
   })
+
+  -- Read once at mod init by starters.lua, which gates its entire body
+  -- on this -- like every option here, a change needs a restart to take
+  -- effect, so both choice labels say so plainly. -Elvie
+  table.insert(optionRows, {
+    key = "rocketStarters", type = "choice", label = "ROCKET STARTERS",
+    choices = {
+      {"OFF (RESTART)", false},
+      {"ON (RESTART)", true}},
+      default = true
+  })
+
+  mod.options:define(optionRows)
 
   -- Assign player sprite based on mod options
   -- -----------------------------------------
@@ -132,19 +231,20 @@ function kris.init(mod)
     if ctx.demo then return path end
 
     local colorMode = mod.options:get("colorMode")
+    local character = mod.options:get("character")
     local variants, selected
 
     if ctx.side == "back" then
       variants = battleSpriteVariants
-      selected = mod.options:get("battleSprite")
+      selected = resolveBattleKey(character)
     elseif ctx.side == "front" then
       variants = frontSpriteVariants
-      selected = mod.options:get("frontSprite")
+      selected = resolveFrontKey(character)
     else
       return path
     end
 
-    local variant = variants[selected] and variants[selected][colorMode]
+    local variant = selected and variants[selected] and variants[selected][colorMode]
 
     if variant then
       ctx.trueColor = variant.trueColor
@@ -190,8 +290,9 @@ function kris.init(mod)
   end
 
   -- Per-folder overworld, naming, and gender overrides
-  -- All follow whichever folder is selected for FRONT SPRITE, falling
-  -- back to defaults when a folder doesn't define them. -Elvie
+  -- All follow whichever folder is resolved for the selected character's
+  -- front sprite, falling back to defaults when a folder doesn't define
+  -- them. -Elvie
   -- --------------------------------------------------
   local DEFAULT_NAME_CHOICES = {"JESSIE", "JAMES", "ROCKET", "GIOVANNI"}
   local DEFAULT_GENDER_MODE = "girl"
@@ -207,7 +308,7 @@ function kris.init(mod)
     return count > 0
   end
 
-  local overworldKey = mod.options:get("frontSprite")
+  local overworldKey = resolveFrontKey(mod.options:get("character"))
   local overworldMeta = readMeta(overworldKey)
 
   local CRYSTAL_COLORS = isColorTable(overworldMeta.overworldColors)
@@ -261,6 +362,65 @@ function kris.init(mod)
         return CRYSTAL_COLORS
       end
       return originalSpritePalette(data, daytime, spriteDef, objDef)
+    end
+  end
+
+  -- Gen 2's fishing animation does not go through the sprite registry at
+  -- all: it reads a fixed sheet path from gen2MenuGfx.emotes.fishing,
+  -- loaded once at boot straight from generated data with no content
+  -- registry in between, so there is nothing to override there. What can
+  -- be overridden is Player:drawFishing itself, the method that actually
+  -- draws it, the same way TrainerCard:drawPortrait was overridden above.
+  -- A folder can optionally provide fishing.png/fishingColor.png matching
+  -- the same 16x32 layout the vanilla sheet uses (three 16x8 pose frames
+  -- stacked for down/up/side, then two 8x8 rod frames side by side at the
+  -- bottom) documented in the README. If a folder does not provide one,
+  -- this calls straight through to the original method, so fishing looks
+  -- like vanilla Chris until a folder opts in. ROD_OAM and FISH_ROW are
+  -- copied from Player.lua's own local tables so the custom sheet
+  -- positions and animates identically to the vanilla one. -Elvie
+  -- -----------------------------------------------
+  if isGen2 then
+    local Player = require("src.world.gen2.Player")
+    local originalDrawFishing = Player.drawFishing
+    local ROD_OAM = {
+      down  = { dx =  0, dy = 16, tile = 0 },
+      up    = { dx =  0, dy = -8, tile = 0 },
+      left  = { dx = -8, dy =  5, tile = 1, flip = true },
+      right = { dx = 16, dy =  5, tile = 1 },
+    }
+    local FISH_ROW = { down = 0, up = 1, left = 2, right = 2 }
+
+    Player.drawFishing = function(self, yOffset)
+      local colorMode = mod.options:get("colorMode")
+      local dmg = fileVariant(overworldKey, "fishing.png", false)
+      local color = fileVariant(overworldKey, "fishingColor.png", true)
+      local variant = (dmg or color) and { dmg = dmg or color, fullColor = color or dmg }
+      local fishingVariant = variant and variant[colorMode]
+      if not fishingVariant then
+        return originalDrawFishing(self, yOffset)
+      end
+
+      local sprite = self.sprite
+      local py = self.py + yOffset
+      local facing = self.facing
+      sprite:draw(self.px, py, 0, 0, facing, 0, false, true)
+      if not self.fishQuads then
+        self.fishQuads = { pose = {}, rod = {} }
+        for i = 0, 2 do
+          self.fishQuads.pose[i] = love.graphics.newQuad(0, i * 8, 16, 8, 16, 32)
+        end
+        for i = 0, 1 do
+          self.fishQuads.rod[i] = love.graphics.newQuad(i * 8, 24, 8, 8, 16, 32)
+        end
+      end
+      local sx, sy = sprite:getScreenOrigin(self.px, py, 0, 0)
+      sprite:drawTile(fishingVariant.path, sx,
+        sy + math.max(0, sprite.frameHeight - 8), facing == "right",
+        self.fishQuads.pose[FISH_ROW[facing] or 0])
+      local oam = ROD_OAM[facing] or ROD_OAM.down
+      sprite:drawTile(fishingVariant.path, sx + oam.dx, sy + oam.dy, oam.flip,
+        self.fishQuads.rod[oam.tile])
     end
   end
   
@@ -321,26 +481,57 @@ function kris.init(mod)
   -- Gen 2 Trainer Card
   -- Registered under its own distinct screen id, so no Gen1/Gen2 gating
   -- is needed here the way the field registry patches above need it --
-  -- nothing on Gen 1 would ever request "Gen2TrainerCard". -Elvie
+  -- nothing on Gen 1 would ever request "Gen2TrainerCard".
+  --
+  -- The portrait isn't a normal image on this screen: TrainerCard draws it
+  -- from 35 individual 8x8 tiles baked into specific indices of the SAME
+  -- tilesheet the frame itself uses (confirmed from TrainerCard.lua's own
+  -- comments -- even one of the frame's own tiles, the top-right notch, is
+  -- borrowed from that 35-tile range). Replacing the whole tilesheet to
+  -- swap the portrait meant also having to recreate the frame's tile
+  -- layout exactly right, and any mismatch there is what produced the
+  -- fragmented, scrambled look. Keeping the real vanilla tilesheet (frame,
+  -- dividers, ID No tiles, all correct by construction, straight from the
+  -- game's own extracted data) and overriding drawPortrait to paint the
+  -- resolved front sprite directly, as a normal image, avoids that whole
+  -- class of tile-index bugs entirely -- a "blank card + overlay," just
+  -- implemented as a method override instead of a second image file. -Elvie
   -- -----------------------------------------------
   mod.content.screens:register("Gen2TrainerCard", {
     new = function(game, opts)
       local TrainerCard = require("src.ui.gen2.TrainerCard")
-      local base = (game.data.gen2MenuGfx or {}).trainerCard or {}
+      local instance = TrainerCard.new(game, opts)
 
-      local gfx = {}
-      for k, v in pairs(base) do gfx[k] = v end
-      gfx.card = mod.assets:path("assets/menus/card.png")
+      -- Portrait tile box: (14,1) to (18,7) in 8px tiles = 40x56 pixels.
+      -- A folder can optionally provide trainerCard.png/trainerCardColor.png
+      -- (checked in the same folder as the front sprite) purpose-built for
+      -- this box; if it doesn't, this falls back to the same front sprite
+      -- used everywhere else -- same fallback pattern as the overworld
+      -- files above. Drawn at native size, centered, relying on
+      -- transparency around the character rather than scaling to fill --
+      -- easy to swap back to scale-to-fill (boxW / iw, boxH / ih) if this
+      -- looks worse in practice for art that isn't purpose-built. -Elvie
+      -- -----------------------------------------------
+      local colorMode = mod.options:get("colorMode")
+      local dedicatedDmg = fileVariant(overworldKey, "trainerCard.png", false)
+      local dedicatedColor = fileVariant(overworldKey, "trainerCardColor.png", true)
+      local dedicated = (dedicatedDmg or dedicatedColor)
+        and { dmg = dedicatedDmg or dedicatedColor, fullColor = dedicatedColor or dedicatedDmg }
+      local portraitVariant = (dedicated and dedicated[colorMode])
+        or (frontSpriteVariants[overworldKey] and frontSpriteVariants[overworldKey][colorMode])
 
-      local newOpts = {}
-      for k, v in pairs(opts or {}) do newOpts[k] = v end
-      newOpts.menuGfx = { trainerCard = gfx }
-
-      local instance = TrainerCard.new(game, newOpts)
-      if instance.card then
-        instance.card.palette = nil 
-        instance.card.paletteFor = nil
+      instance.drawPortrait = function()
+        if not portraitVariant then return end
+        local image = mod.assets:image(portraitVariant.path)
+        if not image then return end
+        local iw, ih = image:getDimensions()
+        local boxX, boxY, boxW, boxH = 14 * 8, 1 * 8, 40, 56
+        local drawX = boxX + (boxW - iw) / 2
+        local drawY = boxY + (boxH - ih) / 2
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(image, drawX, drawY)
       end
+
       return instance
     end,
   })
