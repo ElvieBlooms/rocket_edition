@@ -1,5 +1,6 @@
 {
   "label": "GRUNT F",
+  "character": "GRUNT F",
   "nameChoices": ["ROCKET", "JESSIE", "GIOVANNI", "JAMES"],
   "genderMode": "girl",
   "overworldColors": [[255, 255, 255], [255, 156, 107], [156, 49, 66], [0, 0, 0]]
