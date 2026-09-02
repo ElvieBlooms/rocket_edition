@@ -320,19 +320,32 @@ function kris.init(mod)
   local genderMode = (type(overworldMeta.genderMode) == "string" and VALID_GENDER_MODES[overworldMeta.genderMode])
     and overworldMeta.genderMode or DEFAULT_GENDER_MODE
 
-  -- Overworld sprite files, resolved per file with fallback to
-  -- Crystal's stock assets. -Elvie
+  -- Overworld sprite files, resolved per file with fallback to Crystal's
+  -- stock assets. colorName is optional -- passing one lets a folder
+  -- provide a full color variant (e.g. overworldWalkColor.png) alongside
+  -- the plain one, selected by colorMode the same way front/back/
+  -- trainerCard/fishing already are, with trueColor returned so callers
+  -- apply the right one instead of assuming false. -Elvie
   -- --------------------------------------------------
-  local function overworldAsset(name, fallback)
-    local variant = fileVariant(overworldKey, name, false)
-    return variant and mod.assets:path(variant.path) or mod.assets:path(fallback)
+  local function overworldAsset(name, colorName, fallback)
+    local colorMode = mod.options:get("colorMode")
+    local dmg = fileVariant(overworldKey, name, false)
+    local color = colorName and fileVariant(overworldKey, colorName, true)
+    local variant = (dmg or color) and { dmg = dmg or color, fullColor = color or dmg }
+    local resolved = variant and variant[colorMode]
+    if resolved then
+      return mod.assets:path(resolved.path), resolved.trueColor
+    end
+    return mod.assets:path(fallback), false
   end
 
-  local overworldWalk = overworldAsset("overworldWalk.png", "assets/overworld/crystalPlayer.png")
-  local overworldBike = overworldAsset("overworldBike.png", "assets/overworld/crystalBike.png")
-  local overworldFishSide = overworldAsset("overworldFishSide.png", "assets/overworld/crystalFishSide.png")
-  local overworldFishFront = overworldAsset("overworldFishFront.png", "assets/overworld/crystalFishFront.png")
-  local overworldFishBack = overworldAsset("overworldFishBack.png", "assets/overworld/crystalFishBack.png")
+  local overworldWalk, overworldWalkTrueColor =
+    overworldAsset("overworldWalk.png", "overworldWalkColor.png", "assets/overworld/crystalPlayer.png")
+  local overworldBike, overworldBikeTrueColor =
+    overworldAsset("overworldBike.png", "overworldBikeColor.png", "assets/overworld/crystalBike.png")
+  local overworldFishSide = overworldAsset("overworldFishSide.png", nil, "assets/overworld/crystalFishSide.png")
+  local overworldFishFront = overworldAsset("overworldFishFront.png", nil, "assets/overworld/crystalFishFront.png")
+  local overworldFishBack = overworldAsset("overworldFishBack.png", nil, "assets/overworld/crystalFishBack.png")
 
   -- Intercepts the sprite renderer if the sprite is assigned a matching palette source and applies the CRYSTAL_COLORS palette to the sprite. 
   -- Hands the request back to the original sprite renderer if any other sprite.
@@ -433,7 +446,7 @@ function kris.init(mod)
   for _, spriteId in ipairs({ "SPRITE_RED", "SPRITE_CHRIS" }) do
     mod.content.sprites:patch(spriteId, {
       image = overworldWalk,
-      trueColor = false,
+      trueColor = overworldWalkTrueColor,
       paletteSource = "PLAYER_PALETTE",
     })
   end
@@ -441,7 +454,7 @@ function kris.init(mod)
   for _, spriteId in ipairs({ "SPRITE_RED_BIKE", "SPRITE_CHRIS_BIKE" }) do
     mod.content.sprites:patch(spriteId, {
       image = overworldBike,
-      trueColor = false,
+      trueColor = overworldBikeTrueColor,
       paletteSource = "PLAYER_PALETTE",
     })
   end

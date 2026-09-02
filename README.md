@@ -13,9 +13,10 @@ Where Crystal packages a single player character (and multiple outfit choices an
 | Jessie | Available |
 | James | Available |
 | Jessie/James/Meowth Trio | Available |
-| Rocket Grunt (Male) | Custom sprites in progress |
-| Rocket Grunt (Female) | Custom sprites in progress |
+| Rocket Grunt (Male) | Custom sprites in progress -- 5 variants planned |
+| Rocket Grunt (Female) | Custom sprites in progress -- 5 variants planned |
 | Giovanni | Custom sprites in progress |
+| Kris (Team Rocket variants) | Available -- Rocket Admin and Rocket Grunt looks |
 
 - Crystal Clear community sprites will be used as placeholders for the interim where applicable (giovanni/ gruntF)
 
@@ -86,8 +87,8 @@ Both show up under a single **JESSIE** entry in the **CHARACTER** option, with *
 
 ### Overworld sprites, colors, names & gender
 A character's folder can also optionally include any of these files to replace its walking, bike, and fishing overworld sprites:
-* `overworldWalk.png`
-* `overworldBike.png`
+* `overworldWalk.png` (and `overworldWalkColor.png` for a full color variant)
+* `overworldBike.png` (and `overworldBikeColor.png` for a full color variant)
 * `overworldFishSide.png`
 * `overworldFishFront.png`
 * `overworldFishBack.png`
@@ -107,6 +108,12 @@ All of the above -- the five overworld files and the three meta.json keys -- app
   "overworldColors": [[255, 255, 255], [111, 90, 165], [40, 20, 70], [0, 0, 0]]
 }
 ```
+
+### Gen 2 trainer card portrait
+On Gold, Silver, and Crystal, a character's folder can also optionally include `trainerCard.png` (and `trainerCardColor.png` for the full color variant) -- art purpose-built for the trainer card's 40x56 portrait box, drawn at native size and centered. If a folder doesn't provide one, the trainer card falls back to that folder's regular front sprite instead.
+
+### Gen 2 fishing sprite
+On Gold, Silver, and Crystal, a character's folder can also optionally include `fishing.png` (and `fishingColor.png` for the full color variant) to replace the fishing animation. This one has a specific layout to match: a 16x32 pixel sheet with three 16x8 pose frames stacked vertically (for facing down, up, and to the side) followed by two 8x8 rod frames side by side at the bottom, matching the exact layout the game's own fishing sheet uses. If a folder doesn't provide one, fishing uses the game's own default animation instead. Overworld walking, biking, and fishing sprites otherwise follow the same rules described above.
 
 ## Crystal
 Crystal is a supported game version, sprite pack and starter story alike. Crystal has its own native gender-choice screen (choosing between Chris and Kris) that Gold and Silver never had; since your appearance here already comes from your selected sprite folder, that screen is skipped automatically so it doesn't ask a second, separate question. Because we skip it your save will be defaulted to male but the text overrides from girl and enby mode will be applied based on the sprite folder you utilize. 
